@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="./vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="goods" v-for="(goods,goodsInex) in goodsList" :key="goods.id">
+            <div class="title">{{ goods.title }}:</div>
+            <ul class="type-list">
+                <li class="type" v-for="(type,typeIndex) in goods.typeList" :key="type" :class="{
+                       'active': goods.index == typeIndex
+                   }" @click="handleClick(goods,type,typeIndex,goodsInex)">
+                    {{ type }}
+                </li>
+            </ul>
+        </div>
+        <div class="choose-type">
+            <div>已选条件:</div>
+            <span class="no-goods" v-if="!showFilterGoods">暂时没有选择过滤条件</span>
+            <ul class="filter-list" v-else="">
+                <li v-for="(goods,goodsKey) in filterObj">
+                    {{ goods }}
+                    <span class="delete-goods" @click="deleteFilterGoods(goodsKey)">x</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                filterObj: {},
+                showFilterGoods: false,
+                goodsList: [{
+                        title: '上装',
+                        typeList: ['全部', '针织衫', '毛呢外套', 'T恤', '羽绒服', '棉衣', '卫衣', '风衣'],
+                        id: 1,
+                    },
+                    {
+                        title: '裤装',
+                        typeList: ['全部', '牛仔裤', '小脚/铅笔裤', '休闲裤', '打底裤', '哈伦裤'],
+                        id: 2,
+                    },
+                    {
+                        title: '裙装',
+                        typeList: ['全部', '连衣裙', '半身裙', '长袖连衣裙', '中长款连衣裙'],
+                        id: 3,
+                    }
+                ],
+
+            },
+            methods: {
+                handleClick(goods, type, typeIndex, goodsInex) {
+                    if (type === '全部') {
+                        return
+                    }
+                    this.showFilterGoods = true
+                    // 将每行的索引设置为点击条件的索引，完成active更改
+                    goods.index = typeIndex
+                    // $set(改谁，改它的什么，改成什么)
+                    vm.$set(this.filterObj, goodsInex, type)
+                    // console.log(this.filterObj)
+                },
+                deleteFilterGoods(goodsKey) {
+                    vm.$delete(this.filterObj, goodsKey)
+                    // 将goodsList的第goodsKey个的索引置为0
+                    this.goodsList[goodsKey].index = 0
+                    this.changeFilterObj()
+                    // if(JSON.stringify(this.filterObj) === '{}'){
+                    //     this.showFilterGoods=false
+                    // }
+                    // console.log(JSON.stringify(this.filterObj))
+                    // console.log(typeof this.filterObj)
+                },
+                // 判断已选条件是否为空
+                changeFilterObj() {
+                    // 把对象转换成字符串
+                    const filterObjStr = JSON.stringify(this.filterObj)
+                    this.showFilterGoods = filterObjStr !== '{}'
+                }
+            }
+        })
+        // 通过$set 实例方法，更改属性可渲染页面
+        vm.goodsList.forEach(item => {
+            vm.$set(item, 'index', 0)
+        });
+    </script>
+</body>
+
+</html>
